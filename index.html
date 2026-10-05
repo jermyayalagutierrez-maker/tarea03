@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Integrado - Controles 06 al 10</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: #1a252f;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        nav.menu {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 25px;
+            width: 100%;
+            max-width: 900px;
+        }
+        nav.menu a {
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 0.9em;
+            transition: background 0.2s;
+        }
+        nav.menu a:hover {
+            background: #0056b3;
+        }
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            width: 100%;
+            max-width: 500px;
+        }
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .card h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 0.9em;
+            color: #495057;
+        }
+        input[type="text"],
+        input[type="password"],
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 15px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            flex: 1;
+            padding: 10px;
+            border-radius: 4px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            background: #007bff;
+        }
+        button.btn-success { background: #28a745; }
+        button.btn-danger { background: #dc3545; }
+        button.btn-secondary { background: #6c757d; }
+        button:hover { opacity: 0.9; }
+
+        .msg-error { color: #dc3545; font-weight: bold; }
+        .msg-exito { color: #28a745; font-weight: bold; }
+        #totalCajaTexto {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 1.05em;
+        }
+        .sugerencias {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e9f7ef;
+            border-left: 4px solid #27ae60;
+            border-radius: 4px;
+        }
+        .sugerencias h4 { margin: 0 0 10px 0; color: #1e8449; }
+        .sugerencias ul { padding-left: 20px; margin: 0; }
+        .sugerencias li { margin-bottom: 10px; font-size: 0.85em; list-style-type: square; }
+        .boleto-item {
+            background-color: #f9f9f9;
+            border: 1px dashed #666;
+            padding: 10px;
+            margin-top: 8px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Portal Unificado de Evaluaciones</h1>
+
+    <nav class="menu">
+        <a href="#modulo1">1. Acceso</a>
+        <a href="#modulo2">2. Productos</a>
+        <a href="#modulo3">3. Caja</a>
+        <a href="#modulo4">4. Clientes</a>
+        <a href="#modulo5">5. Pasajes</a>
+    </nav>
+
+    <div class="main-container">
+
+        <!-- MODULO 1: CONTROL DE ACCESO -->
+        <section id="modulo1" class="card">
+            <h2>Control 06: Validación de Acceso</h2>
+            <label for="clave">Contraseña de Administrador:</label>
+            <input type="password" id="clave" placeholder="Ingrese contraseña">
+            <div class="btn-group">
+                <button onclick="validarAcceso()">Validar</button>
+                <button class="btn-secondary" onclick="limpiarAcceso()">Limpiar</button>
+            </div>
+            <p id="msgAcceso"></p>
+            <p id="intentosAcceso">Intentos fallidos: 0 / 3</p>
+        </section>
+
+        <!-- MODULO 2: CARGA DE PRODUCTOS -->
+        <section id="modulo2" class="card">
+            <h2>Control 07: Carga de Productos</h2>
+            <label for="productoInput">Nombre del Producto:</label>
+            <input type="text" id="productoInput" placeholder="Ej. Teclado USB">
+
+            <div class="btn-group">
+                <button class="btn-success" onclick="agregarProducto()">Guardar</button>
+                <button class="btn-danger" onclick="cerrarLote()">Finalizar Carga</button>
+            </div>
+
+            <h3>Productos Guardados:</h3>
+            <ul id="listaProductos"></ul>
+            <p id="estadoInventario"></p>
+        </section>
+
+        <!-- MODULO 3: CIERRE DE CAJA -->
+        <section id="modulo3" class="card">
+            <h2>Control 08: Módulo de Caja Diaria</h2>
+            <label for="tipoCambioInput">Tipo de Cambio (S/ por $1 USD):</label>
+            <input type="number" id="tipoCambioInput" value="3.75" step="0.01">
+
+            <label for="montoInput">Monto de la Venta (S/):</label>
+            <input type="number" id="montoInput" placeholder="Ej. 50.50" step="0.01">
+
+            <div class="btn-group">
+                <button onclick="registrarVenta()">Registrar Venta</button>
+                <button class="btn-secondary" onclick="calcularTotalCaja()">Calcular Total</button>
+            </div>
+
+            <p id="mensajeVenta"></p>
+            <h3>Historial de Ventas:</h3>
+            <ul id="historialVentas"></ul>
+            <h3 id="totalCajaTexto">Total en Caja: S/ 0.00 ($ 0.00 USD)</h3>
+        </section>
+
+        <!-- MODULO 4: CONSULTA DE CLIENTES -->
+        <section id="modulo4" class="card">
+            <h2>Control 09: Consulta de Cartera de Clientes</h2>
+            <label for="clienteBuscarInput">Nombre del Cliente a buscar:</label>
+            <input type="text" id="clienteBuscarInput" placeholder="Ej. Jeremy ayala">
+
+            <button type="button" onclick="buscarCliente()">Buscar en Base de Datos</button>
+
+            <p id="resultadoBusqueda"></p>
+
+            <div class="sugerencias">
+                <h4>Sugerencias de Mejora del Sistema:</h4>
+                <ul>
+                    <li>
+                        <strong>1. Búsqueda por coincidencia parcial:</strong><br>
+                        <em>Sustento:</em> Permite encontrar al cliente aunque no se escriba su nombre exacto o completo.
+                    </li>
+                    <li>
+                        <strong>2. Opción para registrar nuevos clientes:</strong><br>
+                        <em>Sustento:</em> Si la búsqueda no arroja resultados, permite agregar al cliente de inmediato.
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- MODULO 5: RESERVA DE BOLETOS -->
+        <section id="modulo5" class="card">
+            <h2>Control 10: Venta de Pasajes</h2>
+            <p>Asientos Disponibles en el Autobús: <strong id="stockBoletos">5</strong></p>
+
+            <label for="nombreInput">Nombres del Pasajero:</label>
+            <input type="text" id="nombreInput" placeholder="Ej. Juan">
+
+            <label for="apellidoInput">Apellidos del Pasajero:</label>
+            <input type="text" id="apellidoInput" placeholder="Ej. Pérez Gómez">
+
+            <label for="edadInput">Edad del Pasajero:</label>
+            <input type="number" id="edadInput" placeholder="Ej. 25">
+
+            <div class="btn-group">
+                <button onclick="agregarPasajero()">1. Agregar Pasajero</button>
+                <button class="btn-success" onclick="procesarReserva()">2. Emitir Boletos</button>
+            </div>
+
+            <p id="resultadoReserva"></p>
+            
+            <h3>Pasajeros Registrados en Espera:</h3>
+            <ul id="listaPasajeros"></ul>
+
+            <h3>Boletos Emitidos:</h3>
+            <div id="boletosEmitidos"></div>
+        </section>
+
+    </div>
+
+    <script>
+        // Helper global
+        const _ = id => document.getElementById(id);
+
+        /* =========================================================
+           CONTROL 06: ACCESO
+           ========================================================= */
+        let fallosAcceso = 0, bloqueadoAcceso = false;
+        const CLAVE_CORRECTA = "admin123";
+
+        function validarAcceso() {
+            if (bloqueadoAcceso) return;
+            
+            if (_("clave").value === CLAVE_CORRECTA) {
+                _("msgAcceso").className = "msg-exito"; 
+                _("msgAcceso").innerText = "¡Acceso concedido!";
+                fallosAcceso = 0; 
+                _("intentosAcceso").innerText = "Intentos fallidos: 0 / 3";
+            } else {
+                fallosAcceso++;
+                _("intentosAcceso").innerText = `Intentos fallidos: ${fallosAcceso} / 3`;
+                if (fallosAcceso >= 3) {
+                    bloqueadoAcceso = true; 
+                    _("clave").disabled = true;
+                    _("msgAcceso").className = "msg-error"; 
+                    _("msgAcceso").innerText = "Acceso bloqueado.";
+                } else {
+                    _("msgAcceso").className = "msg-error"; 
+                    _("msgAcceso").innerText = "Contraseña incorrecta.";
+                }
+            }
+        }
+
+        function limpiarAcceso() {
+            if (!bloqueadoAcceso) { 
+                _("clave").value = ""; 
+                _("msgAcceso").innerText = ""; 
+                _("clave").focus(); 
+            }
+        }
+
+        /* =========================================================
+           CONTROL 07: PRODUCTOS
+           ========================================================= */
+        let inventario = [];
+
+        function agregarProducto() {
+            const nombre = _("productoInput").value.trim();
+            if (!nombre) {
+                alert("Ingrese un nombre válido de producto.");
+                _("productoInput").focus();
+                return;
+            }
+            inventario.push(nombre);
+            _("productoInput").value = "";
+            mostrarListaProductos();
+            _("productoInput").focus();
+        }
+
+        function mostrarListaProductos() {
+            _("listaProductos").innerHTML = inventario
+                .map((prod, i) => `<li>Producto N° ${i + 1}: ${prod}</li>`)
+                .join("");
+        }
+
+        function cerrarLote() {
+            _("estadoInventario").innerText = `Lote cerrado con ${inventario.length} productos registrados.`;
+        }
+
+        /* =========================================================
+           CONTROL 08: CAJA DIARIA
+           ========================================================= */
+        let ventasRegistradas = [];
+
+        function registrarVenta() {
+            const monto = parseFloat(_("montoInput").value);
+            const tipoCambio = parseFloat(_("tipoCambioInput").value);
+
+            if (isNaN(monto) || monto <= 0 || isNaN(tipoCambio) || tipoCambio <= 0) {
+                alert("Ingrese montos y tipo de cambio válidos mayores a 0.");
+                return;
+            }
+
+            ventasRegistradas.push(monto);
+            _("montoInput").value = "";
+
+            const montoUSD = monto / tipoCambio;
+            _("mensajeVenta").innerText = `Venta de S/ ${monto.toFixed(2)} ($ ${montoUSD.toFixed(2)} USD) registrada.`;
+
+            const item = document.createElement("li");
+            item.innerText = `Venta: S/ ${monto.toFixed(2)} | Equivalente: $ ${montoUSD.toFixed(2)} USD`;
+            _("historialVentas").appendChild(item);
+            _("montoInput").focus();
+        }
+
+        function calcularTotalCaja() {
+            const tipoCambio = parseFloat(_("tipoCambioInput").value);
+            if (isNaN(tipoCambio) || tipoCambio <= 0) return alert("Tipo de cambio inválido.");
+
+            const totalSoles = ventasRegistradas.reduce((acc, curr) => acc + curr, 0);
+            const totalUSD = totalSoles / tipoCambio;
+
+            _("totalCajaTexto").innerText = `Total acumulado en caja: S/ ${totalSoles.toFixed(2)} ($ ${totalUSD.toFixed(2)} USD)`;
+        }
+
+        /* =========================================================
+           CONTROL 09: CLIENTES
+           ========================================================= */
+        const baseDatosClientes = ["Jeremy ayala", "makanaki ", "Maria Gomez", "Carlos Ruiz", "Comercial Beta"];
+
+        function buscarCliente() {
+            const query = _("clienteBuscarInput").value.trim().toLowerCase();
+
+            if (!query) {
+                alert("Escriba un nombre para consultar.");
+                _("clienteBuscarInput").focus();
+                return;
+            }
+
+            const encontrado = baseDatosClientes.some(cliente => cliente.toLowerCase() === query);
+            const originalInput = _("clienteBuscarInput").value.trim();
+
+            if (encontrado) {
+                _("resultadoBusqueda").style.color = "green";
+                _("resultadoBusqueda").style.background = "#e8f5e9";
+                _("resultadoBusqueda").innerText = `Estado: El cliente '${originalInput}' SÍ está registrado.`;
+            } else {
+                _("resultadoBusqueda").style.color = "red";
+                _("resultadoBusqueda").style.background = "#ffebee";
+                _("resultadoBusqueda").innerText = `Estado: El cliente '${originalInput}' NO se encuentra en la base de datos.`;
+            }
+
+            _("clienteBuscarInput").focus();
+        }
+
+        /* =========================================================
+           CONTROL 10: PASAJES
+           ========================================================= */
+        let asientosDisponibles = 5;
+        let listaPasajerosTemp = [];
+
+        function agregarPasajero() {
+            const nombre = _("nombreInput").value.trim();
+            const apellido = _("apellidoInput").value.trim();
+            const edad = parseInt(_("edadInput").value);
+
+            if (!nombre || !apellido || isNaN(edad) || edad <= 0) {
+                alert("Ingrese todos los datos válidos del pasajero (Nombre, Apellido y Edad).");
+                return;
+            }
+
+            if (listaPasajerosTemp.length >= asientosDisponibles) {
+                alert(`No puede registrar más pasajeros que los asientos disponibles (${asientosDisponibles}).`);
+                return;
+            }
+
+            listaPasajerosTemp.push({ nombre, apellido, edad });
+            _("nombreInput").value = ""; 
+            _("apellidoInput").value = ""; 
+            _("edadInput").value = "";
+
+            actualizarListaEspera();
+            _("nombreInput").focus();
+        }
+
+        function actualizarListaEspera() {
+            _("listaPasajeros").innerHTML = listaPasajerosTemp
+                .map(p => `<li>${p.nombre} ${p.apellido} (${p.edad} años)</li>`)
+                .join("");
+        }
+
+        function procesarReserva() {
+            const solicitados = listaPasajerosTemp.length;
+
+            if (solicitados === 0) return alert("Primero agregue al menos un pasajero antes de emitir boletos.");
+            if (solicitados > asientosDisponibles) return _("resultadoReserva").innerText = "No hay suficientes asientos disponibles.";
+
+            _("boletosEmitidos").innerHTML = listaPasajerosTemp.map((p, index) => {
+                asientosDisponibles--;
+                return `<div class="boleto-item">
+                            <strong>BOLETO N° ${index + 1}</strong><br>
+                            Pasajero: ${p.nombre} ${p.apellido}<br>
+                            Edad: ${p.edad} años
+                        </div>`;
+            }).join("");
+
+            _("stockBoletos").innerText = asientosDisponibles;
+            _("resultadoReserva").innerText = `¡Compra exitosa! Se emitieron ${solicitados} boleto(s).`;
+            
+            listaPasajerosTemp = [];
+            actualizarListaEspera();
+
+            if (asientosDisponibles === 0) {
+                _("resultadoReserva").innerText += " (¡Atención: Se han agotado los asientos!)";
+            }
+        }
+    </script>
+</body>
+</html>
+
